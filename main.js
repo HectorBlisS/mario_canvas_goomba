@@ -1,10 +1,13 @@
 // Config
 let canvas = document.querySelector('canvas')
 let ctx = canvas.getContext('2d')
-ctx.font = "50px 'Press Start 2P'"
 //ctx.fillRect(0,0,canvas.width,canvas.height)
 
 // Globals
+let sounds = {
+    gameOver:"https://vgmdownloads.com/soundtracks/new-super-mario-bros.-2/juygtzsr/1-41%20Game%20Over.mp3",
+    music:"https://vgmdownloads.com/soundtracks/new-super-mario-bros.-2/zsujimsl/1-5%20Bonus%20Room.mp3"
+}
 let images = {
     mario:"https://miro.medium.com/max/420/0*UnsiT5rG5W41Ymxt",
     bg:"https://bit.ly/2LA87TH",
@@ -13,6 +16,10 @@ let images = {
 let interval // si queremos apagar
 let frames = 0 // siempre queremos contar
 let enemies = []
+let gameOver = new Audio()
+gameOver.src = sounds.gameOver
+let music = new Audio()
+music.src = sounds.music
 
 // Clases
 class GameItem{
@@ -27,6 +34,7 @@ class GameItem{
     }
 
     draw = () => {
+
         ctx.drawImage(this.img,this.x,this.y,this.width,this.height)
     }
 
@@ -77,6 +85,7 @@ let mario = new Mario({x:0,y:450,image:images.mario})
 
 // Main functions
 function start() {
+    music.play()
     interval = setInterval(update, 1000/60)
 }
 
@@ -95,14 +104,19 @@ function update() { // esta mierda se repite infinitamente
     // generate stuff:
     if(frames%100 === 0) generateGoomba() // cual es el tiempo optimo para que no se encimen ...
     checkCollition()
+    // score
+    drawScore()
 }
 
 function stop() {
+    music.pause()
     clearInterval(interval)
+    ctx.font = "50px 'Press Start 2P'"
     ctx.fillStyle = "white"
     ctx.fillText("Game Over", 50,200)
     ctx.font = "15px 'Press Start 2P'"
     ctx.fillText("Press space btn to restart", 100,300)
+    gameOver.play()
 } 
 
 // aux functions
@@ -129,10 +143,25 @@ function checkCollition(){
     })
 }
 
+function drawScore(){
+    let sec = Math.floor(frames/60)
+    ctx.fillStyle = "white"
+    ctx.font = "20px 'Press Start 2P'"
+    ctx.fillText(sec, 450,40)
+}
+
 // listeners
 addEventListener('keydown', e=>{
     if(e.keyCode === 37) mario.moveLeft() // esto es un atributo publico
     if(e.keyCode===39) mario.moveRight() // deberíamos usar setters y getters...
+    if(e.key === "Enter") start()
 })
 
-start()
+// start()
+
+
+// 1.- Pantalla de bienvenida
+// 2.- espacio para reset
+// 3.- agregar, | velocidad si pasan 10 seg | Agregarle vidas a mario | Estrellitas (con efecto)
+// | Cuando se tocan las * mario es: (inmune|aumenta vida| se cambia por luigi | se mueren  los goombas)
+// | Mario dipara << tan complejo como quieras |
