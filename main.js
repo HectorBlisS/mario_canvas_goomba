@@ -1,6 +1,7 @@
 // Config
 let canvas = document.querySelector('canvas')
 let ctx = canvas.getContext('2d')
+ctx.font = "50px 'Press Start 2P'"
 //ctx.fillRect(0,0,canvas.width,canvas.height)
 
 // Globals
@@ -36,14 +37,24 @@ class Mario extends GameItem{
         super(config) // papi dame mi herencia diunavez tengo una idea de negocio muy buena
     }
     moveLeft = () => {
- // tarea mario no debe salirse 
         this.x-=56
+        if(this.x<0) this.x = 0
     }
 
     moveRight = () => {
-        if (this.x>=canvas.width) return // TAREA 
         this.x+=56
+        if (this.x + this.width > canvas.width) this.x = canvas.width - this.width 
     }
+
+
+    crashWith = (item)=> { // false o un true ....
+          return    (this.x < item.x + item.width) &&
+                    (this.x + this.width > item.x) &&
+                    (this.y < item.y + item.height) &&
+                    (this.y + this.height > item.y);
+        }
+      
+
 }
 
 class Goomba extends GameItem{
@@ -82,11 +93,16 @@ function update() { // esta mierda se repite infinitamente
     // si lo quiero en mi videojuego lo tengo que meter a update
     drawGoombas()
     // generate stuff:
-    if(frames%10 === 0) generateGoomba() // cual es el tiempo optimo para que no se encimen ...
+    if(frames%100 === 0) generateGoomba() // cual es el tiempo optimo para que no se encimen ...
+    checkCollition()
 }
 
 function stop() {
     clearInterval(interval)
+    ctx.fillStyle = "white"
+    ctx.fillText("Game Over", 50,200)
+    ctx.font = "15px 'Press Start 2P'"
+    ctx.fillText("Press space btn to restart", 100,300)
 } 
 
 // aux functions
@@ -102,6 +118,14 @@ function generateGoomba () { 
 function drawGoombas () {  // ya podemos dibujarlos a todos
     enemies.forEach(goomba=>{ // porque es un ciclo 
         goomba.draw()
+    })
+}
+
+function checkCollition(){
+    enemies.forEach(goomba=>{
+        if(mario.crashWith(goomba)){
+            stop() // function aux restarle la vida y provar un brillo
+        }
     })
 }
 
